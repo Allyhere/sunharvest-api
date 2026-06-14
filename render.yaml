@@ -1,0 +1,25 @@
+databases:
+  - name: sunharvest-db
+    plan: free
+    databaseName: sunharvest
+    user: sunharvest
+
+services:
+  - type: web
+    name: sunharvest-api
+    runtime: docker
+    plan: free
+    repo: https://github.com/Allyhere/sunharvest-api.git
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sunharvest-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000

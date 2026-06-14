@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sunharvest
+      POSTGRES_PASSWORD: sunharvest
+      POSTGRES_DB: sunharvest
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sunharvest"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://sunharvest:sunharvest@db:5432/sunharvest
+      JWT_SECRET: dev-jwt-secret-do-not-use-in-prod
+      JWT_REFRESH_SECRET: dev-refresh-secret-do-not-use-in-prod
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

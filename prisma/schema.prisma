@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  createdAt    DateTime @default(now())
+  farms        Farm[]
+}
+
+model Farm {
+  id                     String   @id @default(uuid())
+  userId                 String
+  name                   String
+  latitude               Float
+  longitude              Float
+  altitudeMeters         Float
+  cropType               String
+  soilType               String
+  areaHectares           Float
+  irrigationEfficiency   Float
+  solarPanelCapacityW    Float
+  pumpPowerW             Float
+  tiltDegrees            Float?
+  azimuthDegrees         Float?
+  performanceRatio       Float?
+  iotDeviceId            String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alerts Alert[]
+
+  @@index([userId])
+}
+
+model Alert {
+  id           String   @id @default(uuid())
+  farmId       String
+  severity     String
+  message      String
+  acknowledged Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  farm Farm @relation(fields: [farmId], references: [id], onDelete: Cascade)
+
+  @@index([farmId])
+}
